@@ -1,7 +1,6 @@
 package au.edu.uq.itee.comp3506.assn2.entities;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.time.LocalDateTime;
 
 /**
