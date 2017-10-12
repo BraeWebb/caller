@@ -85,3 +85,7 @@ test {
 		events "passed", "failed", "skipped", "standardOut", "standardError"
 	}
 }
+
+dependencies {
+    compile 'junit:junit:4.12'
+}
