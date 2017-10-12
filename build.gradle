@@ -1,0 +1,87 @@
+buildscript {
+  repositories {
+    maven {
+      url "http://repo1.maven.org/maven2"
+    }
+  }
+  dependencies {
+    classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
+  }
+}
+
+allprojects {
+    ext {
+        appName = "comp3506-assignment2"
+        gdxVersion = '1.9.6'
+        roboVMVersion = '2.3.1'
+        box2DLightsVersion = '1.4'
+        ashleyVersion = '1.7.0'
+        aiVersion = '1.8.0'
+    }
+}
+
+apply plugin: 'org.sonarqube';
+apply plugin: 'java';
+apply plugin: 'eclipse';
+apply plugin: 'idea';
+apply plugin: 'jacoco';
+
+jacoco {
+	toolVersion = "0.7.7.201606060606"
+}
+
+test {
+	jacoco {
+		append = false
+		destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+	}
+}
+
+tasks.withType(Javadoc) {
+	options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+javadoc {
+	options.tags = ['require', 'ensure']
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	//maven { url 'http://deco2800-artifactory.uqcloud.net/artifactory/libs-release/' }
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src'
+		}
+	}
+
+	test {
+		java {
+			srcDir 'tests'
+		}
+	}
+}
+
+test {
+	jvmArgs = [
+			"-Djava.awt.headless=true",
+			"-Dtestfx.robot=glass",
+			"-Dtestfx.headless=true",
+			"-Dprism.order=sw",
+			"-Dprism.text=t2K",
+			"-Dglass.platform=Monocle",
+			"-Dmonocle.platform=Headless",
+			"-Dprism.verbose=true",
+			"-Dprism.debugFonts=true"
+	]
+	/* This tells gradle to log tests to the console as they are running. Note that tests
+	   are only executed if there are changes. To force gradle to run all tests, use
+	   'gradlew cleanTest test'
+	 */
+	testLogging {
+		events "passed", "failed", "skipped", "standardOut", "standardError"
+	}
+}
