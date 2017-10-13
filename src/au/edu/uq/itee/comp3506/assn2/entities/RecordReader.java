@@ -19,12 +19,12 @@ public class RecordReader {
 
     private static final Logger LOGGER = Logger.getLogger(RecordReader.class.getName());
 
-    public void readLine(String line) {
+    public CallRecord readLine(String line) {
         String[] lineArray = line.split(" ");
 
         if (lineArray[0].length() != 10) {
             LOGGER.log(Level.INFO, "Invalid Phone Number Length");
-            return;
+            return null;
         }
 
         List<Integer> switches = new ArrayList<>();
@@ -37,7 +37,7 @@ public class RecordReader {
                 break;
             } else {
                 LOGGER.log(Level.INFO, "Invalid Switch Length");
-                return;
+                return null;
             }
         }
 
@@ -46,7 +46,7 @@ public class RecordReader {
         int callerSwitch = switches.get(0);
         int receiverSwitch = switches.get(switches.size() - 1);
 
-        CallRecord callRecord = new CallRecord(
+        return new CallRecord(
                 caller,
                 receiver,
                 callerSwitch,
@@ -54,16 +54,11 @@ public class RecordReader {
                 switches,
                 LocalDateTime.parse(lineArray[lineArray.length - 1])
         );
-
-        LOGGER.info(callRecord.toString());
     }
 
     public void read(String file) {
-        BufferedReader bufferedReader = null;
 
-        try {
-            bufferedReader = new BufferedReader(new FileReader(file));
-
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             while (bufferedReader.ready()) {
                 readLine(bufferedReader.readLine());
             }
@@ -72,14 +67,6 @@ public class RecordReader {
         } catch (IOException exception) {
             LOGGER.log(Level.SEVERE, "Exception occurred trying to read call records.");
             LOGGER.log(Level.SEVERE, exception.getMessage(), exception);
-        } finally {
-            try {
-                if (bufferedReader != null) {
-                    bufferedReader.close();
-                }
-            } catch (IOException exception) {
-                LOGGER.log(Level.SEVERE, "Failed to close a file.");
-            }
         }
     }
 
