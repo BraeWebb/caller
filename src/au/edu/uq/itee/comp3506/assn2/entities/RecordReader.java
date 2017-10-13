@@ -27,6 +27,11 @@ public class RecordReader {
             return null;
         }
 
+        if (lineArray[1].length() != 5) {
+            LOGGER.log(Level.INFO, "Invalid Switch Length");
+            return null;
+        }
+
         List<Integer> switches = new ArrayList<>();
 
         for (int i = 1; i < lineArray.length; i++) {
@@ -39,6 +44,11 @@ public class RecordReader {
                 LOGGER.log(Level.INFO, "Invalid Switch Length");
                 return null;
             }
+        }
+
+        if (switches.size() != lineArray.length - 3) {
+            LOGGER.log(Level.INFO, "Line Formatted Incorrectly");
+            return null;
         }
 
         Long caller = Long.parseLong(lineArray[0]);
@@ -57,7 +67,6 @@ public class RecordReader {
     }
 
     public void read(String file) {
-
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             while (bufferedReader.ready()) {
                 readLine(bufferedReader.readLine());
