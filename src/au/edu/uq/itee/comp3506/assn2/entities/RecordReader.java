@@ -19,52 +19,73 @@ public class RecordReader {
 
     private static final Logger LOGGER = Logger.getLogger(RecordReader.class.getName());
 
-    public static void main(String[] args) {
+    public void readLine(String line) {
+        String[] lineArray = line.split(" ");
+
+        if (lineArray[0].length() != 10) {
+            LOGGER.log(Level.INFO, "Invalid Phone Number Length");
+            return;
+        }
+
+        List<Integer> switches = new ArrayList<>();
+
+        for (int i = 1; i < lineArray.length; i++) {
+            String phoneSwitch = lineArray[i];
+            if (phoneSwitch.length() == 5) {
+                switches.add(Integer.parseInt(phoneSwitch));
+            } else if (phoneSwitch.length() == 10) {
+                break;
+            } else {
+                LOGGER.log(Level.INFO, "Invalid Switch Length");
+                return;
+            }
+        }
+
+        Long caller = Long.parseLong(lineArray[0]);
+        Long receiver = Long.parseLong(lineArray[switches.size() + 1]);
+        int callerSwitch = switches.get(0);
+        int receiverSwitch = switches.get(switches.size() - 1);
+
+        CallRecord callRecord = new CallRecord(
+                caller,
+                receiver,
+                callerSwitch,
+                receiverSwitch,
+                switches,
+                LocalDateTime.parse(lineArray[lineArray.length - 1])
+        );
+
+        LOGGER.info(callRecord.toString());
+    }
+
+    public void read(String file) {
+        BufferedReader bufferedReader = null;
+
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader("data/call-records-short.txt"));
+            bufferedReader = new BufferedReader(new FileReader(file));
 
             while (bufferedReader.ready()) {
-                String[] line = bufferedReader.readLine().split(" ");
-
-                if (line[0].length() != 10) {
-                    LOGGER.log(Level.INFO, "Invalid Phone Number Length");
-                    continue;
-                }
-
-                List<Integer> switches = new ArrayList<>();
-
-                for (int i = 1; i < line.length; i++) {
-                    String phoneSwitch = line[i];
-                    if (phoneSwitch.length() == 5) {
-                        switches.add(Integer.parseInt(phoneSwitch));
-                    } else if (phoneSwitch.length() == 10) {
-                        break;
-                    } else {
-                        LOGGER.log(Level.INFO, "Invalid Switch Length");
-                    }
-                }
-
-                Long caller = Long.parseLong(line[0]);
-                Long receiver = Long.parseLong(line[switches.size() + 1]);
-                int callerSwitch = switches.get(0);
-                int receiverSwitch = switches.get(switches.size() - 1);
-
-                CallRecord callRecord = new CallRecord(
-                        caller,
-                        receiver,
-                        callerSwitch,
-                        receiverSwitch,
-                        switches,
-                        LocalDateTime.parse(line[line.length - 1])
-                );
-
-                System.out.println(callRecord.toString());
+                readLine(bufferedReader.readLine());
             }
 
             bufferedReader.close();
         } catch (IOException exception) {
             LOGGER.log(Level.SEVERE, "Exception occurred trying to read call records.");
             LOGGER.log(Level.SEVERE, exception.getMessage(), exception);
+        } finally {
+            try {
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+            } catch (IOException exception) {
+                LOGGER.log(Level.SEVERE, "Failed to close a file.");
+            }
         }
+    }
+
+    public static void main(String[] args) {
+        RecordReader recordReader = new RecordReader();
+
+        recordReader.read("data/call-records-short.txt");
     }
 }
