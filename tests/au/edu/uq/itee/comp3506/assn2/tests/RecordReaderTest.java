@@ -4,6 +4,8 @@ import au.edu.uq.itee.comp3506.assn2.entities.CallRecord;
 import au.edu.uq.itee.comp3506.assn2.entities.RecordReader;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
@@ -43,5 +45,20 @@ public class RecordReaderTest {
 
         record = recordReader.readLine("7340395059 15143 8414841992 2017-09-01T02:11:46.990");
         assertEquals(record.toString(), "CallRecord [dialler=7340395059, receiver=8414841992, diallerSwitch=15143, receiverSwitch=15143, connectionPath=[15143], timeStamp=2017-09-01T02:11:46.990]");
+    }
+
+    @Test
+    public void testRead() {
+        RecordReader recordReader = new RecordReader();
+
+        CallRecord record = recordReader.read("data/call-records-short.txt").get(45);
+
+        assertEquals(record.toString(), "CallRecord [dialler=1617908647, receiver=4425614237, diallerSwitch=87546, receiverSwitch=29774, connectionPath=[87546, 87546, 99865, 90110, 38570, 29774, 29774], timeStamp=2017-09-01T10:34:23.916]");
+
+        List<CallRecord> callRecords = recordReader.read("data/tests/empty.txt");
+        assertEquals(callRecords, new ArrayList<>());
+
+        callRecords = recordReader.read("data/tests/doesnotexist.txt");
+        assertEquals(callRecords, new ArrayList<>());
     }
 }

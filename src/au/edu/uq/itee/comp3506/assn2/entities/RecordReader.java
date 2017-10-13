@@ -66,10 +66,11 @@ public class RecordReader {
         );
     }
 
-    public void read(String file) {
+    public List<CallRecord> read(String file) {
+        ArrayList<CallRecord> records = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             while (bufferedReader.ready()) {
-                readLine(bufferedReader.readLine());
+                records.add(readLine(bufferedReader.readLine()));
             }
 
             bufferedReader.close();
@@ -77,11 +78,12 @@ public class RecordReader {
             LOGGER.log(Level.SEVERE, "Exception occurred trying to read call records.");
             LOGGER.log(Level.SEVERE, exception.getMessage(), exception);
         }
+        return records;
     }
 
     public static void main(String[] args) {
         RecordReader recordReader = new RecordReader();
 
-        recordReader.read("data/call-records-short.txt");
+        System.out.println(recordReader.read("data/call-records-short.txt").get(45).toString());
     }
 }
