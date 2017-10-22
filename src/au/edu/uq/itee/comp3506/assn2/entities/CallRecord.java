@@ -59,6 +59,10 @@ public class CallRecord {
 	public LocalDateTime getTimeStamp() {
 		return timeStamp;
 	}
+
+	public boolean isFaulty() {
+		return connectionPath.isEmpty() || connectionPath.get(connectionPath.size() - 1) != receiverSwitch;
+	}
 	
 	/**
 	 * 

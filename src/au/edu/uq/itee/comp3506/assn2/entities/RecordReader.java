@@ -19,7 +19,7 @@ public class RecordReader {
 
     private static final Logger LOGGER = Logger.getLogger(RecordReader.class.getName());
 
-    public CallRecord readLine(String line) {
+    public static CallRecord readLine(String line) {
         String[] lineArray = line.split(" ");
 
         if (lineArray[0].length() != 10) {
@@ -66,11 +66,14 @@ public class RecordReader {
         );
     }
 
-    public List<CallRecord> read(String file) {
+    public static List<CallRecord> read(String file) {
         ArrayList<CallRecord> records = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             while (bufferedReader.ready()) {
-                records.add(readLine(bufferedReader.readLine()));
+                CallRecord record = readLine(bufferedReader.readLine());
+                if (record != null) {
+                    records.add(record);
+                }
             }
 
             bufferedReader.close();
@@ -82,8 +85,11 @@ public class RecordReader {
     }
 
     public static void main(String[] args) {
-        RecordReader recordReader = new RecordReader();
+        List<CallRecord> records = read("data/call-records-short.txt");
 
-        System.out.println(recordReader.read("data/call-records-short.txt").get(45).toString());
+        for (CallRecord record : records) {
+            System.out.println(record);
+        }
+        System.out.println(records.size());
     }
 }
