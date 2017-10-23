@@ -60,8 +60,13 @@ public class CallRecord {
 		return timeStamp;
 	}
 
-	public boolean isFaulty() {
-		return connectionPath.isEmpty() || connectionPath.get(connectionPath.size() - 1) != receiverSwitch;
+	public Integer findFault() {
+		if (connectionPath.isEmpty()) {
+			return diallerSwitch;
+		} else if (connectionPath.get(connectionPath.size() - 1) != receiverSwitch) {
+			return connectionPath.get(connectionPath.size() - 1);
+		}
+		return -1;
 	}
 	
 	/**

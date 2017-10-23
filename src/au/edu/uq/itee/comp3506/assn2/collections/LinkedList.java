@@ -1,7 +1,10 @@
-package au.edu.uq.itee.comp3506.assn2.entities;
+package au.edu.uq.itee.comp3506.assn2.collections;
+
+import au.edu.uq.itee.comp3506.assn2.nodes.LinkedNode;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A linked list of items stored in sequential order.
@@ -12,7 +15,7 @@ import java.util.Collection;
  *
  * @param <T> The type of element held in the linked list.
  */
-public class LinkedList<T> {
+public class LinkedList<T> implements List<T> {
 
     // The node the cursor is currently pointing to
     private LinkedNode<T> cursor;
@@ -45,7 +48,7 @@ public class LinkedList<T> {
      *
      * @param item The item to be added to the list.
      */
-    public void addToEnd(T item){
+    public void add(T item){
         LinkedNode<T> node = new LinkedNode<>(item);
 
         size++;
@@ -63,48 +66,6 @@ public class LinkedList<T> {
         cursor.setAfter(node);
         cursor = node;
         last = cursor;
-    }
-
-    /**
-     * Add an item before the cursor of the linked list.
-     * If the list is empty then the item becomes the only item in the list.
-     * The cursor is set to the location of the newly inserted item.
-     *
-     * Runtime efficiency: O(1)
-     * Determined as the LinkedNode constructor, isEmpty, getBefore and getAfter
-     * methods all run in O(1) so the worst case runtime is O(1)
-     *
-     * @param item The item to be inserted into the list.
-     */
-    public void insert(T item){
-        LinkedNode<T> node = new LinkedNode<>(item);
-
-        size++;
-
-        if (isEmpty()) {
-            cursor = node;
-            first = cursor;
-            last = cursor;
-            return;
-        }
-
-        if (cursor.getBefore() == null) {
-            node.setAfter(cursor);
-            cursor.setBefore(node);
-            cursor = node;
-            first = cursor;
-            return;
-        }
-
-        LinkedNode<T> before = cursor.getBefore();
-
-        node.setBefore(before);
-        node.setAfter(cursor);
-
-        cursor.setBefore(node);
-        before.setAfter(node);
-
-        cursor = node;
     }
 
     /**
@@ -214,53 +175,6 @@ public class LinkedList<T> {
     }
 
     /**
-     * Set the cursor to point to the previous item in the sequential linked list.
-     * Returns the previous item in the list or null if the list is empty.
-     *
-     * Runtime efficiency: O(1)
-     * Determined as isEmpty, getBefore and getValue are O(1) efficiency so the worst
-     * case runtime can only be O(1).
-     *
-     * @return The item at the previous position of the list or null if the list is empty.
-     */
-    public T getPrevious(){
-        if (isEmpty()) {
-            return null;
-        }
-        LinkedNode<T> before = cursor.getBefore();
-        if (before != null) {
-            cursor = before;
-        }
-        return cursor.getValue();
-    }
-
-    /**
-     * Iterates through the linked list starting at the first value until the
-     * value of item is found in the list or the end of the list is reached.
-     * The cursor points to the item where the value was found or the last
-     * element in the list if it was not found.
-     *
-     * Runtime efficiency: O(n)
-     * Determined as getFirst, getValue, equals and getNext run in constant
-     * runtime complexity but the code is looped through a maximum of n times
-     * (if the value is never found) where n is the length of the linked list.
-     *
-     * @param item The item to be found.
-     * @return true iff the value was found in the list.
-     */
-    public boolean find(T item){
-        if (getFirst() != null) {
-            do {
-                if (cursor.getValue().equals(item)) {
-                    return true;
-                }
-                getNext();
-            } while (!isLast());
-        }
-        return false;
-    }
-
-    /**
      * Indicates if the list is empty or not.
      *
      * Runtime efficiency: O(1)
@@ -276,17 +190,41 @@ public class LinkedList<T> {
         return this.size;
     }
 
-    public T[] toArray(Class<T> typeClass) {
-        T[] list = (T[]) Array.newInstance(typeClass, size);
-        int index = 0;
+    public Iterator<T> iterator() {
+        getFirst();
 
-        list[index++] = getFirst();
+        return new Iterator<T>() {
+            private boolean isFirst = true;
 
-        while (!isLast()) {
-            list[index++] = getNext();
+            @Override
+            public boolean hasNext() {
+                return isFirst && !isEmpty() || !isEmpty() && !isLast();
+            }
+
+            @Override
+            public T next() {
+                if (isEmpty()) {
+                    throw new NoSuchElementException();
+                }
+                if (isFirst) {
+                    isFirst = false;
+                    return getFirst();
+                }
+                return getNext();
+            }
+        };
+    }
+
+    public void replace(T item) {
+        getFirst();
+        remove();
+        add(item);
+    }
+
+    public void addAll(List<T> list) {
+        for (T item : list) {
+            add(item);
         }
-
-        return list;
     }
 
     /**
@@ -298,7 +236,7 @@ public class LinkedList<T> {
      *
      * @return true iff the cursor is pointing the the last element in the list.
      */
-    public boolean isLast(){
+    public boolean isLast() {
         if (isEmpty()) {
             return false;
         }
@@ -320,13 +258,9 @@ public class LinkedList<T> {
         LinkedNode<T> current = cursor;
 
         getFirst();
-        if (cursor == null) {
-            return "";
-        }
-        String string = "[" + cursor.getValue().toString();
-        while (!isLast()) {
-            getNext();
-            string += ", " + cursor.getValue().toString();
+        String string = "[" + cursor.getValue();
+        for (T value : this) {
+            string += ", " + value;
         }
         cursor = current;
         return string + "]";
@@ -347,7 +281,7 @@ public class LinkedList<T> {
  * This was made possibly by a change in design. Originally the getFirst and
  * getLast methods iterated through the list until they pointed to the first
  * and last elements respectively. This was inefficient as the getFirst, getLast
- * methods and any methods which utilized them such as the addToEnd and find
+ * methods and any methods which utilized them such as the add and find
  * methods would have a minimum complexity of O(n).
  *
  * The change which made the current efficiency possible was to keep track
@@ -358,37 +292,3 @@ public class LinkedList<T> {
  * linked list have O(n) efficiency which would slow it down significantly for
  * big game worlds.
  */
-
-
-class LinkedNode<T> {
-
-    private LinkedNode<T> before;
-    private LinkedNode<T> after;
-    private T value;
-
-    LinkedNode(T value) {
-        this.value = value;
-        before = null;
-        after = null;
-    }
-
-    void setBefore(LinkedNode<T> before) {
-        this.before = before;
-    }
-
-    LinkedNode<T> getBefore() {
-        return before;
-    }
-
-    void setAfter(LinkedNode<T> after) {
-        this.after = after;
-    }
-
-    LinkedNode<T> getAfter() {
-        return after;
-    }
-
-    T getValue() {
-        return value;
-    }
-}

@@ -1,5 +1,8 @@
 package au.edu.uq.itee.comp3506.assn2.entities;
 
+import au.edu.uq.itee.comp3506.assn2.collections.AVLTree;
+import au.edu.uq.itee.comp3506.assn2.collections.LinkedList;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,8 +22,8 @@ public class RecordReader {
 
     private static final Logger LOGGER = Logger.getLogger(RecordReader.class.getName());
 
-    public static CallRecord readLine(String line) {
-        String[] lineArray = line.split(" ");
+    public static CallRecord readLine(String line, AVLTree<Integer, CallRecord> switchTree) {
+        String[] lineArray = line.split("\\s+");
 
         if (lineArray[0].length() != 10) {
             LOGGER.log(Level.INFO, "Invalid Phone Number Length");
@@ -37,6 +40,10 @@ public class RecordReader {
         for (int i = 1; i < lineArray.length; i++) {
             String phoneSwitch = lineArray[i];
             if (phoneSwitch.length() == 5) {
+                Integer switchNumber = Integer.parseInt(phoneSwitch);
+                if (switchTree.find(switchNumber) == null) {
+                    return null;
+                }
                 switches.add(Integer.parseInt(phoneSwitch));
             } else if (phoneSwitch.length() == 10) {
                 break;
@@ -53,8 +60,17 @@ public class RecordReader {
 
         Long caller = Long.parseLong(lineArray[0]);
         Long receiver = Long.parseLong(lineArray[switches.size() + 1]);
-        int callerSwitch = switches.get(0);
-        int receiverSwitch = switches.get(switches.size() - 1);
+        int callerSwitch = Integer.parseInt(lineArray[1]);
+        int receiverSwitch = Integer.parseInt(lineArray[lineArray.length - 3]);
+
+        switches.remove(0);
+        switches.remove(switches.size() - 1);
+
+        if (!switches.isEmpty()) {
+            if (callerSwitch != switches.get(0)) {
+                return null;
+            }
+        }
 
         return new CallRecord(
                 caller,
@@ -66,11 +82,13 @@ public class RecordReader {
         );
     }
 
-    public static List<CallRecord> read(String file) {
-        ArrayList<CallRecord> records = new ArrayList<>();
+    public static LinkedList<CallRecord> read(String file) {
+        AVLTree<Integer, CallRecord> switches = readSwitches("data/switches.txt");
+
+        LinkedList<CallRecord> records = new LinkedList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             while (bufferedReader.ready()) {
-                CallRecord record = readLine(bufferedReader.readLine());
+                CallRecord record = readLine(bufferedReader.readLine(), switches);
                 if (record != null) {
                     records.add(record);
                 }
@@ -84,12 +102,25 @@ public class RecordReader {
         return records;
     }
 
-    public static void main(String[] args) {
-        List<CallRecord> records = read("data/call-records-short.txt");
+    public static AVLTree<Integer, CallRecord> readSwitches(String file) {
+        AVLTree<Integer, CallRecord> tree = new AVLTree<>();
 
-        for (CallRecord record : records) {
-            System.out.println(record);
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+            bufferedReader.readLine();
+            while (bufferedReader.ready()) {
+                tree.insert(Integer.parseInt(bufferedReader.readLine()), null);
+            }
+            bufferedReader.close();
+        } catch (IOException exception) {
+            LOGGER.log(Level.SEVERE, "Exception occurred trying to read switches.");
+            LOGGER.log(Level.SEVERE, exception.getMessage(), exception);
         }
-        System.out.println(records.size());
+
+        return tree;
+    }
+
+    public static void main(String[] args) {
+        AVLTree<Integer, CallRecord> tree = readSwitches("data/switches.txt");
+        System.out.println(tree);
     }
 }
