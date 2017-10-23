@@ -26,12 +26,12 @@ public class RecordReader {
         String[] lineArray = line.split("\\s+");
 
         if (lineArray[0].length() != 10) {
-            LOGGER.log(Level.INFO, "Invalid Phone Number Length");
+//            LOGGER.log(Level.INFO, "Invalid Phone Number Length");
             return null;
         }
 
         if (lineArray[1].length() != 5) {
-            LOGGER.log(Level.INFO, "Invalid Switch Length");
+//            LOGGER.log(Level.INFO, "Invalid Switch Length");
             return null;
         }
 
@@ -48,13 +48,13 @@ public class RecordReader {
             } else if (phoneSwitch.length() == 10) {
                 break;
             } else {
-                LOGGER.log(Level.INFO, "Invalid Switch Length");
+//                LOGGER.log(Level.INFO, "Invalid Switch Length");
                 return null;
             }
         }
 
         if (switches.size() != lineArray.length - 3) {
-            LOGGER.log(Level.INFO, "Line Formatted Incorrectly");
+//            LOGGER.log(Level.INFO, "Line Formatted Incorrectly");
             return null;
         }
 
@@ -83,7 +83,7 @@ public class RecordReader {
     }
 
     public static LinkedList<CallRecord> read(String file) {
-        AVLTree<Integer, CallRecord> switches = readSwitches("data/switches.txt");
+        AVLTree<Integer, CallRecord> switches = readSwitches("out/switches.txt");
 
         LinkedList<CallRecord> records = new LinkedList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
@@ -117,10 +117,5 @@ public class RecordReader {
         }
 
         return tree;
-    }
-
-    public static void main(String[] args) {
-        AVLTree<Integer, CallRecord> tree = readSwitches("data/switches.txt");
-        System.out.println(tree);
     }
 }
