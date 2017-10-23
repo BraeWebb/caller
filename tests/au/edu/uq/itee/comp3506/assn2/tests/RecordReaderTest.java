@@ -1,12 +1,6 @@
 package au.edu.uq.itee.comp3506.assn2.tests;
 
-import au.edu.uq.itee.comp3506.assn2.entities.CallRecord;
-import au.edu.uq.itee.comp3506.assn2.entities.RecordReader;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

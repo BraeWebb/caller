@@ -9,6 +9,7 @@ import au.edu.uq.itee.comp3506.assn2.collections.*;
 import au.edu.uq.itee.comp3506.assn2.collections.LinkedList;
 import au.edu.uq.itee.comp3506.assn2.entities.*;
 import au.edu.uq.itee.comp3506.assn2.nodes.TreeNode;
+import au.edu.uq.itee.comp3506.assn2.util.RecordReader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,7 +26,6 @@ public final class AutoTester implements TestAPI {
 	private AVLTree<Long, CallRecord> diallers;
 	private AVLTree<Long, CallRecord> receivers;
 	private AVLTree<LocalDateTime, CallRecord> times;
-	private AVLTree<LocalDateTime, Integer> switchTimes;
 
 	public AutoTester() {
 		this("data/call-records.txt");
@@ -33,20 +33,15 @@ public final class AutoTester implements TestAPI {
 
 	public AutoTester(String file) {
 		LinkedList<CallRecord> records = RecordReader.read(file);
-		System.out.println(records.size());
 
 		diallers = new AVLTree<>();
 		receivers = new AVLTree<>();
 		times = new AVLTree<>();
-		switchTimes = new AVLTree<>();
 
 		for (CallRecord record : records) {
 			diallers.insert(record.getDialler(), record);
 			receivers.insert(record.getReceiver(), record);
 			times.insert(record.getTimeStamp(), record);
-			for (Integer s : record.getConnectionPath()) {
-				switchTimes.insert(record.getTimeStamp(), s);
-			}
 		}
 	}
 
@@ -113,15 +108,19 @@ public final class AutoTester implements TestAPI {
 	}
 
 	private AVLTree<Integer, Integer> getSwitchCount(LocalDateTime startTime, LocalDateTime endTime) {
-		au.edu.uq.itee.comp3506.assn2.collections.List<Integer> integers = switchTimes.range(startTime, endTime);
-		AVLTree<Integer, Integer> counts = new AVLTree<>();
-		for (Integer integer : integers) {
-			au.edu.uq.itee.comp3506.assn2.collections.List<Integer> numbers = counts.find(integer);
+		au.edu.uq.itee.comp3506.assn2.collections.List<CallRecord> records = times.range(startTime, endTime);
 
-			if (numbers.isEmpty()) {
-				counts.insert(integer, 1);
-			} else {
-				counts.replace(integer, numbers.getFirst() + 1);
+		AVLTree<Integer, Integer> counts = new AVLTree<>();
+
+		for (CallRecord record : records) {
+			for (Integer integer : record.getConnectionPath()) {
+				au.edu.uq.itee.comp3506.assn2.collections.List<Integer> numbers = counts.find(integer);
+
+				if (numbers.isEmpty()) {
+					counts.insert(integer, 1);
+				} else {
+					counts.replace(integer, numbers.getFirst() + 1);
+				}
 			}
 		}
 		return counts;
@@ -180,11 +179,6 @@ public final class AutoTester implements TestAPI {
 	@Override
 	public List<CallRecord> callsMade(LocalDateTime startTime, LocalDateTime endTime) {
 		return filter(times.range(startTime, endTime), (record, extra) -> true, (record -> record));
-	}
-
-	public static void main(String[] args) {
-//		AutoTester test = new AutoTester();
-//		System.out.println(test.diallers);
 	}
 
 //	public static void main(String[] args) {

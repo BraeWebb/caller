@@ -11,6 +11,8 @@ import java.util.NoSuchElementException;
  * Maintains a cursor to one element in the sequential list and provides methods for
  * moving that cursor and manipulating the list at the current cursor location.
  *
+ * Memory efficiency: O(n) as
+ *
  * @author Brae Webb <s4435400@student.uq.edu.au>
  *
  * @param <T> The type of element held in the linked list.

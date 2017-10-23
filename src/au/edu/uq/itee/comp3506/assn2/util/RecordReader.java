@@ -1,7 +1,8 @@
-package au.edu.uq.itee.comp3506.assn2.entities;
+package au.edu.uq.itee.comp3506.assn2.util;
 
 import au.edu.uq.itee.comp3506.assn2.collections.AVLTree;
 import au.edu.uq.itee.comp3506.assn2.collections.LinkedList;
+import au.edu.uq.itee.comp3506.assn2.entities.CallRecord;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
