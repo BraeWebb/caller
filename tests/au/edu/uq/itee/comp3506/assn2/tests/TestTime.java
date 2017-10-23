@@ -64,7 +64,7 @@ public class TestTime {
 //        integers.add(15543);
 //        integers.add(11038);
 //        CallRecord record = new CallRecord(1500457383L, 4553133765L, 62111, 11038, integers, LocalDateTime.parse("2017-09-08T17:56:51.279"));
-//        AutoTester tester = new AutoTester("out/call-records.txt");
+        AutoTester tester = new AutoTester("out/call-records.txt");
         stopTimer("Construction");
     }
 
