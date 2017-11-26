@@ -1,4 +1,5 @@
 readme.md
+task.pdf
 TestNormal.java
 TestShort.java
 RecordGenerator.java
@@ -37,4 +38,6 @@ proguard/
 .gradletasknamecache
 .gradle/
 build/
-bin/
+gradle-app.setting
+!gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
