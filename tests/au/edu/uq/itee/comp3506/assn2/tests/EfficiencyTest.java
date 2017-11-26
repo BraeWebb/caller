@@ -1,14 +1,8 @@
 package au.edu.uq.itee.comp3506.assn2.tests;
 
-import au.edu.uq.itee.comp3506.assn2.entities.CallRecord;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-
-public class TestTime {
+public class EfficiencyTest {
     Runtime run;
     long memStart;
     long timeStart;
@@ -48,30 +42,10 @@ public class TestTime {
 		System.out.println("\n");
     }
 
-//    @BeforeClass
-//    public static void makeTester() {
-//        tester = new AutoTester("out/call-records.txt");
-//    }
-
     @Test
     public void testConstruction() {
         startTimer();
-//        ArrayList<Integer> integers = new ArrayList<>();
-//        integers.add(62111);
-//        integers.add(35980);
-//        integers.add(18261);
-//        integers.add(71625);
-//        integers.add(15543);
-//        integers.add(11038);
-//        CallRecord record = new CallRecord(1500457383L, 4553133765L, 62111, 11038, integers, LocalDateTime.parse("2017-09-08T17:56:51.279"));
-        AutoTester tester = new AutoTester("out/call-records.txt");
+        AutoTester tester = new AutoTester("data/call-records.txt", "data/switches.txt");
         stopTimer("Construction");
     }
-
-//    @Test
-//    public void testAllCalled() {
-//        startTimer();
-//        tester.called(1959159656L);
-//        stopTimer("Find all called");
-//    }
 }

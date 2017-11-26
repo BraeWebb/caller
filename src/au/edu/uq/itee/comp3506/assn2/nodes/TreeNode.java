@@ -14,6 +14,8 @@ import au.edu.uq.itee.comp3506.assn2.collections.List;
  *      As each tree node holds a number of constant memory variables and a
  *      linked list which has O(n) memory efficiency.
  *
+ * @author Brae Webb <s4435400@student.uq.edu.au>
+ *
  * @param <K> The key of the tree node.
  * @param <V> The type of values mapped to the key.
  */

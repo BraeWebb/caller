@@ -2,7 +2,6 @@ package au.edu.uq.itee.comp3506.assn2.collections;
 
 import au.edu.uq.itee.comp3506.assn2.nodes.LinkedNode;
 
-import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -11,7 +10,9 @@ import java.util.NoSuchElementException;
  * Maintains a cursor to one element in the sequential list and provides methods for
  * moving that cursor and manipulating the list at the current cursor location.
  *
- * Memory efficiency: O(n) as
+ * Memory efficiency: O(n) where n is the number of nodes in the linked list.
+ * This is because the number of nodes increase linearly with the number of
+ * elements stored in the list and nodes have constant memory efficiency.
  *
  * @author Brae Webb <s4435400@student.uq.edu.au>
  *
@@ -188,10 +189,26 @@ public class LinkedList<T> implements List<T> {
         return cursor == null;
     }
 
+    /**
+     * Retrieves the size of the current linked list.
+     *
+     * Runtime Efficiency: O(1) as the method consists of one constant time
+     * return operation.
+     *
+     * @return The amount of items stored in the linked list.
+     */
     public int size() {
         return this.size;
     }
 
+    /**
+     * Retrieves the iterator to allow for iteration through the linked list.
+     *
+     * Runtime Efficiency: O(1) as the method consists of the constant time
+     * operation getFirst and a return operation.
+     *
+     * @return An iterator for this linked list.
+     */
     public Iterator<T> iterator() {
         getFirst();
 
@@ -217,12 +234,28 @@ public class LinkedList<T> implements List<T> {
         };
     }
 
+    /**
+     * Replace the first element in the linked list with the given item.
+     *
+     * Runtime Efficiency: O(1) as the method consists of three method calls
+     * which run in constant time.
+     *
+     * @param item The item to set as the first value.
+     */
     public void replace(T item) {
         getFirst();
         remove();
         add(item);
     }
 
+    /**
+     * Add all items from another list into this linked list.
+     *
+     * Runtime Efficiency: O(n) where n is the number of elements in the given
+     * lists. This is because the method loops for every item in the other list.
+     *
+     * @param list The list to add to this list.
+     */
     public void addAll(List<T> list) {
         for (T item : list) {
             add(item);
@@ -259,6 +292,10 @@ public class LinkedList<T> implements List<T> {
     public String toString() {
         LinkedNode<T> current = cursor;
 
+        if (isEmpty()) {
+            return "[]";
+        }
+
         getFirst();
         String string = "[" + cursor.getValue();
         for (T value : this) {
@@ -269,28 +306,3 @@ public class LinkedList<T> implements List<T> {
     }
 
 }
-
-/**
- * I have chosen to implement this linked list as a double linked list of
- * Nodes due to it's simplicity and efficiency.
- * This design is very simplistic compared to more complicated methods
- * because majority of the information about the class is stored in another
- * LinkedNode class. This prevents overly complex and complicated array lists.
- *
- * The design is also very efficient will all methods apart from the find and
- * toString methods have a O(1) runtime efficiency.
- *
- * This was made possibly by a change in design. Originally the getFirst and
- * getLast methods iterated through the list until they pointed to the first
- * and last elements respectively. This was inefficient as the getFirst, getLast
- * methods and any methods which utilized them such as the add and find
- * methods would have a minimum complexity of O(n).
- *
- * The change which made the current efficiency possible was to keep track
- * of pointers to the first and last values and simply change to point to those
- * when the getFirst and getLast methods are called.
- *
- * Additionally this would have caused all the methods in the game which use a
- * linked list have O(n) efficiency which would slow it down significantly for
- * big game worlds.
- */

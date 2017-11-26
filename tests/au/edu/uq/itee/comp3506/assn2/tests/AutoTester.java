@@ -1,5 +1,8 @@
 package au.edu.uq.itee.comp3506.assn2.tests;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
@@ -9,30 +12,25 @@ import au.edu.uq.itee.comp3506.assn2.collections.*;
 import au.edu.uq.itee.comp3506.assn2.collections.LinkedList;
 import au.edu.uq.itee.comp3506.assn2.entities.*;
 import au.edu.uq.itee.comp3506.assn2.nodes.TreeNode;
-import au.edu.uq.itee.comp3506.assn2.util.RecordReader;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Hook class used by automated testing tool.
  * The testing tool will instantiate an object of this class to test the functionality of your assignment.
  * You must implement the method and constructor stubs below so that they call the necessary code in your application.
  * 
- * @author 
+ * @author Brae Webb <s4435400@student.uq.edu.au>
  */
 public final class AutoTester implements TestAPI {
-	// TODO Provide any data members required for the methods below to work correctly with your application.
 	private AVLTree<Long, CallRecord> diallers;
 	private AVLTree<Long, CallRecord> receivers;
 	private AVLTree<LocalDateTime, CallRecord> times;
 
 	public AutoTester() {
-		this("data/call-records.txt");
+		this("data/call-records.txt", "data/switches.txt");
 	}
 
-	public AutoTester(String file) {
-		LinkedList<CallRecord> records = RecordReader.read(file);
+	public AutoTester(String file, String switches) {
+		LinkedList<CallRecord> records = read(file, readSwitches(switches));
 
 		diallers = new AVLTree<>();
 		receivers = new AVLTree<>();
@@ -181,79 +179,104 @@ public final class AutoTester implements TestAPI {
 		return filter(times.range(startTime, endTime), (record, extra) -> true, (record -> record));
 	}
 
-//	public static void main(String[] args) {
-//		AutoTester test = new AutoTester();
-//		long start = System.currentTimeMillis();
-//		LocalDateTime startTime = LocalDateTime.parse("2017-09-12T14:45:01.992");
-//		LocalDateTime endTime = LocalDateTime.parse("2017-09-17T03:38:21.914");
-//		test.maxConnections(startTime, endTime);
-//		System.out.println(System.currentTimeMillis() - start);
-//	}
+	private static CallRecord readLine(String line, AVLTree<Integer, CallRecord> switchTree) {
+		String[] lineArray = line.split("\\s+");
 
-//		LocalDateTime startTime = LocalDateTime.parse("2017-09-08T07:19:23.317");
-//		LocalDateTime endTime = LocalDateTime.parse("2017-09-19T23:56:32.160");
-//		System.out.println(test.callsMade(startTime, endTime));
+		if (lineArray[0].length() != 10) {
+			return null;
+		}
 
-//		double total1 = 0L;
-//		double total2 = 0L;
-//		int count = 0;
-//
-//		for (Long dialler : test.diallers.getKeys()) {
-//			long start = System.currentTimeMillis();
-//			System.out.println(test.diallers.find(dialler));
-//			total1 += System.currentTimeMillis() - start;
-//
-//			start = System.currentTimeMillis();
-//			System.out.println(test.called(dialler));
-//			total2 += System.currentTimeMillis() - start;
-//
-//			System.out.println();
-//			count++;
-//		}
-//
-//		System.out.println(total1/count);
-//		System.out.println(total2/count);
-//
-//		System.out.println(test.diallers.find(3497915596L));
-//	}
-//	public static void main(String[] args) {
-//
-////		AutoTester test = new AutoTester();
-////		List<Long> keys = test.diallers.getKeys();
-//		Runtime run = Runtime.getRuntime();
-//
-//		run.gc();
-//		long memStart = run.totalMemory() - run.freeMemory();
-//
-//		long start = System.nanoTime();
-//
-////		for (Long dialler : keys) {
-////			test.called(dialler);
-////		}
-//		AutoTester test = new AutoTester();
-////		List<CallRecord> records = RecordReader.read("data/call-records.txt");
-//
-//		long stop = System.nanoTime();
-//
-//		run.gc();
-//		long memStop = run.totalMemory() - run.freeMemory();
-//
-//		long diff = stop - start;
-//		long secs = diff / 1_000_000_000;
-//		long millis = (diff / 1_000_000) % 1_000;
-//		long micros = (diff / 1_000) % 1_000;
-//		long nanos = diff % 1_000;
-//		System.out.println("File load time: " +
-//				String.format("%d_%03d.%03d_%03dms", secs, millis, micros, nanos));
-//
-//		long memDiff = memStop - memStart;
-//		long gigs = memDiff / 1_000_000_000;
-//		long megs = (memDiff / 1_000_000) % 1_000;
-//		long kilos = (memDiff / 1000) % 1_000;
-//		long bytes = memDiff % 1_000;
-//		System.out.println("Memory usage: " +
-//				String.format("%dG %dM %dK %d", gigs, megs, kilos, bytes));
-//	}
+		if (lineArray[1].length() != 5) {
+			return null;
+		}
+
+		List<Integer> switches = new ArrayList<>();
+
+		for (int i = 1; i < lineArray.length; i++) {
+			String phoneSwitch = lineArray[i];
+			if (phoneSwitch.length() == 5) {
+				try {
+					Integer switchNumber = Integer.parseInt(phoneSwitch);
+					if (switchTree.find(switchNumber).isEmpty()) {
+						return null;
+					}
+					switches.add(switchNumber);
+				} catch (NumberFormatException exception) {
+					return null;
+				}
+
+			} else if (phoneSwitch.length() == 10) {
+				break;
+			} else {
+				return null;
+			}
+		}
+
+		if (switches.size() != lineArray.length - 3) {
+			return null;
+		}
+
+		Long caller = Long.parseLong(lineArray[0]);
+		Long receiver = Long.parseLong(lineArray[switches.size() + 1]);
+		int callerSwitch = Integer.parseInt(lineArray[1]);
+		int receiverSwitch = Integer.parseInt(lineArray[lineArray.length - 3]);
+
+		switches.remove(0);
+		if (switches.size() <= 0) {
+			return null;
+		}
+		switches.remove(switches.size() - 1);
+
+		if (!switches.isEmpty()) {
+			if (callerSwitch != switches.get(0)) {
+				return null;
+			}
+		}
+
+		return new CallRecord(
+				caller,
+				receiver,
+				callerSwitch,
+				receiverSwitch,
+				switches,
+				LocalDateTime.parse(lineArray[lineArray.length - 1])
+		);
+	}
+
+	private static LinkedList<CallRecord> read(String file, AVLTree<Integer, CallRecord> switches) {
+
+
+		LinkedList<CallRecord> records = new LinkedList<>();
+		try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+			while (bufferedReader.ready()) {
+				CallRecord record = readLine(bufferedReader.readLine(), switches);
+				if (record != null) {
+					records.add(record);
+				}
+			}
+
+			bufferedReader.close();
+		} catch (IOException exception) {
+			return null;
+		}
+		return records;
+	}
+
+	private static AVLTree<Integer, CallRecord> readSwitches(String file) {
+		AVLTree<Integer, CallRecord> tree = new AVLTree<>();
+
+		try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+			bufferedReader.readLine();
+			while (bufferedReader.ready()) {
+				tree.insert(Integer.parseInt(bufferedReader.readLine()), null);
+			}
+			bufferedReader.close();
+		} catch (IOException exception) {
+			return null;
+		}
+
+		return tree;
+	}
 }
 
 interface Filter {

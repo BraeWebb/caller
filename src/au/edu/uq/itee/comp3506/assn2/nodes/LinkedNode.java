@@ -10,6 +10,8 @@ package au.edu.uq.itee.comp3506.assn2.nodes;
  * Memory Efficiency: O(1) as each instance of the class holds two node
  * references and a T value.
  *
+ * @author Brae Webb <s4435400@student.uq.edu.au>
+ *
  * @param <T> The value stored in a linked node.
  */
 public class LinkedNode<T> {
